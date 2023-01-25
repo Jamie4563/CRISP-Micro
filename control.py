@@ -56,15 +56,18 @@ delay = 5e-6
 motor = Motor(21)
 
 clk.value(0)
+
 motor.change_speed(0.5)
+direction = str(SHORT_BRAKE)
 
 steps = 100
+stoptimer = 0
 t = 0
 while True:
     #print(t)
     outstring = ""
     bits = [0]*32
-    bits[1] = 1
+    led.value(0)
     shld.value(0)
     utime.sleep(delay)
     shld.value(1)
@@ -79,12 +82,17 @@ while True:
     clk.value(0)
     if outstring[5] == '0':
         if t>=steps:
-            bits[0] = 1
+            stoptimer = 10
         led.value(1)
         #print('Magnet detected')
+    if stoptimer > 0:
+        stoptimer -= 1
+        bits[0] = int(SHORT_BRAKE[0])
+        bits[1] = int(SHORT_BRAKE[1])
     else:
-        bits[0] = 0
-        led.value(0)
+        bits[0] = int(direction[0])
+        bits[1] = int(direction[1])
+    print(stoptimer)
     shift_update(bits,data_pin,clock_pin,latch_pin)
     #print(outstring)
     if t<steps:
