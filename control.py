@@ -29,32 +29,38 @@ class Motor:
             self.speed = 0
         self.update()
 
+# sends a bit of data on a clocked data pin
 def send_data(clock_pin, data_pin, data):
     clock_pin.value(0)
     data_pin.value(data)
     clock_pin.value(1)
     
-def shift_update(bits, data, clock, latch):
+# sends multiple bits on one data pin in series
+def shift_out(bits, data, clock, latch):
   send_data(clock, latch, 0)
   for bit in reversed(bits):
     send_data(clock, data, int(bit))
   send_data(clock, latch, 1)
   
+# returns 0 if bit at index n is 0
 def check_bit(data, n):
     bitmask = 1 << n
     return data & bitmask
     
 shld = Pin(15, Pin.OUT)
 clk = Pin(14, Pin.OUT)
+clk_inh = Pin(20, Pin.OUT)
 qh = Pin(22, Pin.IN)
 delay = 5e-6
 
+# loads data into the PISO shift register
 def load_parallel():
     clk_inh.value(1)
     shld.value(0) # load A-H pins to registers
     shld.value(1) # latch register values
     
-def shift_out(n):
+# shifts n bits from the PISO shift register into data
+def shift_in(n):
     clk_inh.value(0)
     data = qh.value()
     
@@ -78,10 +84,8 @@ led = Pin(25, Pin.OUT)
 
 motors = [Motor(21)]
 
-clk.value(0)
-
 motor.change_speed(0.5)
-direction = STOP
+direction = CW
 
 while True:
     load_parallel()
@@ -89,7 +93,7 @@ while True:
     bits = ""
     for i in range(len(motors)):
         if check_bit(data, i):
-            bits += SHORT_BRAKE
-        else:
             bits += direction
-    shift_update(bits,data_pin,clock_pin,latch_pin)
+        else:
+            bits += SHORT_BRAKE
+    shift_out(bits,data_pin,clock_pin,latch_pin)
