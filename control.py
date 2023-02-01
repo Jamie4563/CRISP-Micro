@@ -84,7 +84,8 @@ led = Pin(25, Pin.OUT)
 
 motors = [Motor(21)]
 
-motor.change_speed(0.5)
+for motor in motors:
+    motor.change_speed(0.5)
 direction = CW
 
 while True:
