@@ -72,7 +72,7 @@ def shift_in(n):
 data_pin = 28
 latch_pin = 27
 clock_pin = 26
-motor_PWM_pins = [21,0,1,2]
+motor_PWM_pins = [21,3,1,2]
 
 data_pin=Pin(data_pin, Pin.OUT)
 latch_pin=Pin(latch_pin, Pin.OUT)
