@@ -45,7 +45,7 @@ def check_bit(data, n):
     bitmask = 1 << n
     return data & bitmask
     
-shld = Pin(15, Pin.OUT)
+shld = Pin(13, Pin.OUT)
 clk = Pin(14, Pin.OUT)
 clk_inh = Pin(20, Pin.OUT)
 qh = Pin(22, Pin.IN)
@@ -72,7 +72,7 @@ def shift_in(n):
 data_pin = 28
 latch_pin = 27
 clock_pin = 26
-motor_PWM_pins = [21,3,1,2]
+motor_PWM_pins = [21,19,18,17,0,1,2,3,4,5,6,7,8,9,10,11]
 
 data_pin=Pin(data_pin, Pin.OUT)
 latch_pin=Pin(latch_pin, Pin.OUT)
@@ -88,7 +88,7 @@ for pin in motor_PWM_pins:
 clk.value(0)
 
 for motor in motors:
-    motor.change_speed(0.25)
+    motor.change_speed(0.3)
     
 #motors[0].change_speed(0.25)
 #motors[1].change_speed(0.25)
@@ -96,18 +96,18 @@ for motor in motors:
 #motors[3].change_speed(0.27)
 
 #directions = [STOP,CW,CCW,STOP]
-directions = [CW]*4
+directions = [CW]*len(motor_PWM_pins)
 
-bits = "00000000"
+bits = "0"*len(motor_PWM_pins)
 shift_out(bits,data_pin,clock_pin,latch_pin)
 
-counts = [0,0,0,0]
-detected = [True]*4
+counts = [0]*len(motor_PWM_pins)
+detected = [True]*len(motor_PWM_pins)
 max_count = 4
 
 while True:
     load_parallel()
-    data = shift_in(8)
+    data = shift_in(16)
     bits = ""
     for i in range(len(motors)):
         if check_bit(data,i):
@@ -123,14 +123,10 @@ while True:
                 bits += directions[i]
             
     #duty = adc.read_u16()
-    if detected[3]:
-        led.value(1)
-    else:
-        led.value(0)
     #for motor in motors:
     #    motor.change_duty(duty)
     shift_out(bits,data_pin,clock_pin,latch_pin)
 
-bits = "00000000"
+bits = "0"*len(motor_PWM_pins)
 shift_out(bits,data_pin,clock_pin,latch_pin)
 led.value(0)
